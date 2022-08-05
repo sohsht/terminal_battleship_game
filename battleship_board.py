@@ -10,6 +10,7 @@ class Board:
         self.name = name
         self.alive = True
         self.board = []
+        self.status = {}
         self.letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
         if self.name != "Your Shots":
             self.user = True
@@ -48,15 +49,15 @@ class Board:
         for ship in self.ships:
             length = ship[1]
             placed = False
-            try_counter = 1
             while not placed:
                 x = random.randint(0, self.size)
                 alpha = self.letters[random.randint(0, 9)]
                 orientation = random.randint(0, 1)
                 placed = self.place_boat(length, orientation, x, alpha)
-                try_counter += 1
-        print("Auto Populated {}'s board".format(self.name))
 
+    # Given a length, orientation (0 = vertical, 1 = horizontal) and coordinates for the top or left most side of the boat
+    # Will return true and place boat if the ship fits and does not overlap exsisting ships
+    # WIll return false and not place boat if ther are obstructions
     def place_boat(self, length, orientation, x, alpha):
         start = 0
         y = self.letters.index(alpha)
@@ -86,14 +87,38 @@ class Board:
 
         for square in boatsquare:
             self.board[square][1] = "[+]"
+            self.status[square] = "Boat"
         return True
         
-        
-        
-
+    def user_setup_board(self):
+        print('''
+        You will now begin placing your ships! There are a total of 7 ships to place.
+        You can choose either vertical (0) or horizontal (1) layout for the ship.
+        The coordinate you depict will set the topmost or left most point on each ship.
+        You can also choose to have a computer generated random setup for the ships as well!
+        ''')
+        rand_setup = input("Would you like to have a computer generated random setup? Y/N   ")
+        if rand_setup.upper() == "Y":
+            self.auto_populate()
+        else:
+            for ship in self.ships:
+                placed = False
+                while not placed:
+                    print(self)
+                    print("This is your {} and it is {} in length".format(ship[0], ship[1]))
+                    orientation = input("Please enter 0 for a vertical layout or 1 for a horizontal layout.   ")
+                    x = input("Please choose a numerical coordinate for your {}. This ship is {} squares in length.   ".format(ship[0], ship[1]))
+                    alpha = input("Please choose a alphabetical coordinate for your {}. This ship is {} squares in length.   ".format(ship[0], ship[1])).upper()
+                    placed = self.place_boat(ship[1], orientation, int(x), alpha)
+                    if not placed:
+                        print("That was an invalid coordinate for the ship. Make sure you are not overlapping with your other boats or falling off the edge of the board!")
+                    else:
+                        print("Perfect! This is what your board looks like right now")
+                        print(self)
+            
 
     def is_alive(self):
-        return self.alive
+        return "Boat" in self.status.values() 
     
     def shot_fired(self, x, alpha):
         square = 0
@@ -101,8 +126,12 @@ class Board:
         square = y * self.size + (x - 1)
 
         if self.has_boat(square):
+            self.board[square][1] = "[X]"
+            self.status[square] = "Hit"
             print("{} has been hit at coordinate {}, {}".format(self.name, x, alpha))
         else:
+            self.board[square][1] = "[O]"
+            self.status[square] = "Miss"
             print("Shot was fired at coordinate {}, {}. There was no ship there.".format(x, alpha))
     
         
