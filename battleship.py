@@ -41,7 +41,8 @@ new_game = game_start()
 if new_game == 0:
     sys.exit()
 player_board = new_game.board
-pc_board = Board("PC", new_game.size)
+pc_board = Board("Your Shots", new_game.size)
+pc_board.auto_populate()
 
 show_game(player_board, pc_board)
 
