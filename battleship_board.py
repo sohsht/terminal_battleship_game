@@ -30,7 +30,10 @@ class Board:
             if i in range(0, self.size ** 2, self.size):
                 line += " {} ".format(self.letters[round(i / self.size)])
             ### Need to hide pc autopopulated slots below
-            line += self.board[i][1]
+            item = self.board[i][1]
+            if self.name == "Your Shots" and item == "[+]":
+                item = "[ ]"
+            line += item
             if (i + 1) % self.size == 0:
                 final += line + "\n"
                 line = ""
@@ -91,13 +94,16 @@ class Board:
         return True
         
     def user_setup_board(self):
-        print('''
+        print(
+        '''
         You will now begin placing your ships! There are a total of 7 ships to place.
         You can choose either vertical (0) or horizontal (1) layout for the ship.
         The coordinate you depict will set the topmost or left most point on each ship.
         You can also choose to have a computer generated random setup for the ships as well!
-        ''')
-        rand_setup = input("Would you like to have a computer generated random setup? Y/N   ")
+        '''
+        )
+        print("Would you like to have a computer generated random setup? Y/N")
+        rand_setup = input()
         if rand_setup.upper() == "Y":
             self.auto_populate()
         else:
@@ -128,18 +134,12 @@ class Board:
         if self.has_boat(square):
             self.board[square][1] = "[X]"
             self.status[square] = "Hit"
-            print("{} has been hit at coordinate {}, {}".format(self.name, x, alpha))
+            name = self.name
+            if name == "Your Shots":
+                name = "PC"
+            print("{} has been hit at coordinate {}, {}".format(name, x, alpha))
         else:
             self.board[square][1] = "[O]"
             self.status[square] = "Miss"
             print("Shot was fired at coordinate {}, {}. There was no ship there.".format(x, alpha))
-    
-        
-            
-            
-
-
-
-
-        
 
